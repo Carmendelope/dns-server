@@ -1,0 +1,81 @@
+# Target directory to store distributable components
+TARGET=bin
+
+# Docker configuration
+registry:=dev
+AZURE_CR=nalejdev
+DOCKER_REGISTRY=$(AZURE_CR).azurecr.io
+DOCKER_REPO=$(shell whoami)
+VERSION=$(shell cat .version)
+
+ifeq ($(registry),staging)
+	AZURE_CR=nalejstaging
+	DOCKER_REPO=nalej
+endif
+
+ifeq ($(registry),production)
+	AZURE_CR=nalejregistry
+	DOCKER_REPO=nalej
+endif
+
+.PHONY: all
+all: yaml image
+
+yaml:
+	@echo ">>> Creating K8s files..."
+	rm -rf $(TARGET)/yaml/{appcluster,mngtcluster}
+	mkdir -p $(TARGET)/yaml/{appcluster,mngtcluster}
+	for app in $(APPS); do \
+		if [ -d components/"$$app"/appcluster ]; then \
+			cp components/"$$app"/appcluster/*.yaml $(TARGET)/yaml/appcluster/. ; \
+			cd $(TARGET)/yaml/appcluster && find . -type f -name '*.yaml' | xargs sed -i '' 's/__NPH_VERSION/$(VERSION)/g' && cd - > /dev/null ; \
+			cd $(TARGET)/yaml/appcluster && find . -type f -name '*.yaml' | xargs sed -i '' 's/__NPH_NAMESPACE/nalej/g' && cd - > /dev/null ; \
+			cd $(TARGET)/yaml/appcluster && find . -type f -name '*.yaml' | xargs sed -i '' 's/__NPH_REGISTRY_NAMESPACE/$(DOCKER_REPO)/g' && cd - > /dev/null ; \
+			cd $(TARGET)/yaml/appcluster && find . -type f -name '*.yaml' | xargs sed -i '' 's/__NPH_REGISTRY/$(AZURE_CR)/g' && cd - > /dev/null ; \
+		fi ; \
+		if [ -d components/"$$app"/mngtcluster ]; then \
+			cp components/"$$app"/mngtcluster/*.yaml $(TARGET)/yaml/mngtcluster/. ; \
+			cd $(TARGET)/yaml/mngtcluster && find . -type f -name '*.yaml' | xargs sed -i '' 's/__NPH_VERSION/$(VERSION)/g' && cd - > /dev/null ; \
+			cd $(TARGET)/yaml/mngtcluster && find . -type f -name '*.yaml' | xargs sed -i '' 's/__NPH_NAMESPACE/nalej/g' && cd - > /dev/null ; \
+			cd $(TARGET)/yaml/mngtcluster && find . -type f -name '*.yaml' | xargs sed -i '' 's/__NPH_REGISTRY_NAMESPACE/$(DOCKER_REPO)/g' && cd - > /dev/null ; \
+			cd $(TARGET)/yaml/mngtcluster && find . -type f -name '*.yaml' | xargs sed -i '' 's/__NPH_REGISTRY/$(AZURE_CR)/g' && cd - > /dev/null ; \
+		fi ; \
+	done
+
+# Package all images and components
+.PHONY: image
+image:
+	@echo ">>> Creating docker images ..."
+	mkdir -p $(TARGET)
+	for app in $(APPS); do \
+        echo Create image of app $$app ; \
+        if [ -f components/"$$app"/Dockerfile ]; then \
+			if [ -d components/"$$app"/dockerenv ]; then \
+            	cp -rv components/"$$app"/dockerenv $(TARGET)/. ; \
+			fi ; \
+            docker build --no-cache -t $(DOCKER_REGISTRY)/$(DOCKER_REPO)/"$$app":$(VERSION) -f components/"$$app"/Dockerfile $(TARGET) ; \
+			echo Built $$app Docker image ; \
+        else  \
+            echo $$app has no Dockerfile ; \
+        fi ; \
+    done
+
+# Publish the image
+.PHONY: publish az-login az-logout publish-image
+publish: image az-login publish-image az-logout
+
+az-login:
+	@echo ">>> Logging in Azure and Azure Container Registry ..."
+	az login
+	az acr login --name $(AZURE_CR)
+
+az-logout:
+	az logout
+
+publish-image:
+	@echo ">>> Publishing images into Azure Container Registry ..."
+	for app in $(APPS); do \
+		if [ -f components/"$$app"/Dockerfile ]; then \
+			docker push $(DOCKER_REGISTRY)/$(DOCKER_REPO)/"$$app":$(VERSION) ; \
+		fi ; \
+    done

@@ -7,10 +7,10 @@ metadata:
     hasDNS: "true"
     release: dns-server
   name: data-dns-server-0
-  namespace: nalej
+  namespace: __NPH_NAMESPACE
 spec:
   accessModes:
-  - ReadWriteOnce
+    - ReadWriteOnce
   resources:
     requests:
       storage: 1Gi
