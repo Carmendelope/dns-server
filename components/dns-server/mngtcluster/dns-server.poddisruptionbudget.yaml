@@ -8,7 +8,7 @@ metadata:
     cluster: management
     component: dns-server
   name: dns-server-consul-server
-  namespace: nalej
+  namespace: __NPH_NAMESPACE
 spec:
   maxUnavailable: 0
   selector:
