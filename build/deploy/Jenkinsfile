@@ -17,7 +17,10 @@ pipeline {
 
     stages {
         stage("Render YAML files") {
-            steps { container("kubectl") { stepRenderK8SYAMLFiles packagePath, yamlPath, appsList, params.namespace } }
+            steps { 
+                container("kubectl") { stepRenderK8SYAMLFiles packagePath, yamlPath, appsList, params.namespace }
+                container("python") { dir(yamlPath) { sh("statefulset_claims_to_empty_dirs dns-server.statefulset.yaml")} } 
+            }
         }
         stage("Create Kubernetes resources") {
             steps { container("kubectl") { stepCreateK8SResources yamlPath } }
