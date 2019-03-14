@@ -8,6 +8,11 @@ DOCKER_REGISTRY=$(AZURE_CR).azurecr.io
 DOCKER_REPO=$(shell whoami)
 VERSION=$(shell cat .version)
 
+ifeq ($(registry),public)
+	AZURE_CR=nalejpublic
+	DOCKER_REPO=nalej
+endif
+
 ifeq ($(registry),staging)
 	AZURE_CR=nalejstaging
 	DOCKER_REPO=nalej
