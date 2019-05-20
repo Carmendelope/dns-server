@@ -51,6 +51,8 @@ spec:
                 -retry-join=${CONSUL_FULLNAME}-server-0.${CONSUL_FULLNAME}-server.${NAMESPACE}.svc \
                 -retry-join=${CONSUL_FULLNAME}-server-1.${CONSUL_FULLNAME}-server.${NAMESPACE}.svc \
                 -retry-join=${CONSUL_FULLNAME}-server-2.${CONSUL_FULLNAME}-server.${NAMESPACE}.svc \
+                -recursor=8.8.8.8 \
+                -recursor=8.8.4.4 \
                 -server
           env:
             - name: POD_IP
