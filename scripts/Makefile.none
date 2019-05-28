@@ -1,0 +1,8 @@
+# REQUIRES Makefile.common, Makefile.docker and Makefile.k8s
+
+.PHONY: all
+all: yaml image
+
+.PHONY: image
+image: CONTEXTPATH=.
+image: docker-build

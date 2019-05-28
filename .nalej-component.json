@@ -1,0 +1,11 @@
+{
+  "language": "none",
+  "application_list": [
+    "dns-server"
+  ],
+  "tools": [
+    "azure",
+    "k8s",
+    "docker"
+  ]
+}
