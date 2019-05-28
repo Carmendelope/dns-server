@@ -1,20 +1,13 @@
-#
-#  Copyright 2018 Nalej
-# 
+include scripts/Makefile.common
+include scripts/Makefile.docker
+include scripts/Makefile.k8s
+include scripts/Makefile.azure
+include scripts/Makefile.none
 
-# Name of the target applications to be built
-APPS=dns-server
+.DEFAULT_GOAL := all
 
-image:
+docker-build:
 	@echo "This component has no docker images"
 
-publish:
+docker-push:
 	@echo "This component has no docker images"
-
-publish-image:
-	@echo "This component has no docker images"
-
-# Use global Makefile for common targets
-export
-%:
-	$(MAKE) -f Makefile.docker $@
