@@ -1,5 +1,6 @@
 {
   "language": "none",
+  "version": "v0.3.0",
   "application_list": [
     "dns-server"
   ],
