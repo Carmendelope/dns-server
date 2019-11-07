@@ -1,6 +1,6 @@
 # dns-server
 ​
-This is the Nalej DNS server component. This component manages the naming of 
+This is the Nalej DNS server component. This component manages the naming of internal Nalej deployed applications.
 ​​​
 ## Contributing
 ​
