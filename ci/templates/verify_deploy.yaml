@@ -25,6 +25,6 @@ steps:
         fi
       done
       
-      echo "##vso[task.logissue type=error]Error verifying scylla-deploy resources creation. Error CIE0018"
+      echo "##vso[task.logissue type=error]Error verifying dns-server resources creation. Error CIE0018"
       echo "##vso[task.complete result=Failed;]"
-    displayName: Verify scylladb dns-server is ready
+    displayName: Verify dns-server dns-server is ready
