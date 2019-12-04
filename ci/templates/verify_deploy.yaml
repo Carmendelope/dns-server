@@ -6,7 +6,7 @@ steps:
   - script: |
       for (( i=0; i<36; i++ ))
       do
-        expected=$(kubectl --kubeconfig ${{ parameters.kubeconfig }} -n ${{ parameters.namespace }} get statefulset dns-serve-consul-server -o=jsonpath='{.spec.replicas}')
+        expected=$(kubectl --kubeconfig ${{ parameters.kubeconfig }} -n ${{ parameters.namespace }} get statefulset dns-server-consul-server -o=jsonpath='{.spec.replicas}')
         if [ $? -ne 0 ]; then
           break
         fi
