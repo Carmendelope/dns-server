@@ -1,0 +1,30 @@
+parameters:
+  kubeconfig: "$HOME/.kube/config"
+  namespace: "nalej"
+
+steps:
+  - script: |
+      for (( i=0; i<36; i++ ))
+      do
+        expected=$(kubectl --kubeconfig ${{ parameters.kubeconfig }} -n ${{ parameters.namespace }} get statefulset dns-server-consul-server -o=jsonpath='{.spec.replicas}')
+        if [ $? -ne 0 ]; then
+          break
+        fi
+        ready=$(kubectl --kubeconfig ${{ parameters.kubeconfig }} -n ${{ parameters.namespace }} get statefulset dns-server-consul-server -o=jsonpath='{.status.readyReplicas}')
+        if [ $? -ne 0 ]; then
+          break
+        fi
+        echo "Expected: $expected"
+        echo "Ready: $ready"
+        if [ "$expected" == "$ready" ]; then
+          exit 0
+        else
+          echo "Not ready yet, waiting 10 seconds"
+          echo ""
+          sleep 10
+        fi
+      done
+      
+      echo "##vso[task.logissue type=error]Error verifying dns-server resources creation. Error CIE0018"
+      echo "##vso[task.complete result=Failed;]"
+    displayName: Verify dns-server dns-server is ready
